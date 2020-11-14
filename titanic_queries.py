@@ -1,6 +1,5 @@
-"""Create PostgresSQL database, populate and query"""
+"""A few queries about titanic data"""
 import os
-import pandas as pd
 import psycopg2
 from dotenv import load_dotenv
 
