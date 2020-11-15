@@ -45,7 +45,15 @@ df['pclass'] = df['pclass'].map({3:'3rd', 2:'2nd', 1:'1st'})
 engine = create_engine(DB_URL)
 df.to_sql('titanic', engine)
 
-
+# Alter pclass & gender to enumerated types
+alter_class_types = """
+ALTER TABLE titanic
+ALTER COLUMN pclass TYPE passclass
+USING pclass::passclass,
+ALTER COLUMN sex TYPE gender
+USING sex::gender;
+"""
+cursor.execute(alter_class_types)
 
 conn.commit()
 

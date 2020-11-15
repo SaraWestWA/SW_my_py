@@ -19,16 +19,6 @@ conn = psycopg2.connect(dbname=DB_NAME,
 
 cursor = conn.cursor()
 
-# Alter pclass & gender to enumerated types
-alter_class_types = """
-ALTER TABLE titanic
-ALTER COLUMN pclass TYPE passclass
-USING pclass::passclass,
-ALTER COLUMN sex TYPE gender
-USING sex::gender;
-"""
-cursor.execute(alter_class_types)
-
 query1 = """
 -- How  many females over age 35 survived by class?
 SELECT
@@ -40,8 +30,6 @@ GROUP BY pclass;
 """
 result = cursor.execute(query1)
 result1 = cursor.fetchall()
-for i in range(len(result1)):
-    print(f'Number of surviving {result1[i][0]} class females over age 35: {result1[i][1]}')
 
 query2 = """
 -- How  many female passengers were over age 35 by class?
@@ -52,12 +40,28 @@ FROM titanic
 WHERE sex = 'female' AND age > 35
 GROUP BY pclass;
 """
+
 result = cursor.execute(query2)
 result2 = cursor.fetchall()
-for i in range(len(result2)):
-    print(f'Total number of {result2[i][0]} class females over age 35: {result2[i][1]}')
 
-for i in range(len(result2)):
-    print(f'The probablity of a {result2[i][0]} class female over age 35 surviving is: {(result1[i][1]/result2[i][1]):.2}')
+query3 = """
+-- How many females over the age of 35 overall?
+SELECT
+    COUNT(name) as females
+FROM titanic
+WHERE sex = 'female' AND age > 35;
+"""
+
+result = cursor.execute(query3)
+total = cursor.fetchall()
+
+
+print(f'There were {total[0][0]} women over the age of 35 traveling aboard the Titanic.')
+for i in range(len(result1)):
+    rate = round(100*(result1[i][1]/result2[i][1]),1)
+    print(f'Of these {result1[i][1]} in {result2[i][0]} class survived, that is {rate}%.')
+
+# for i in range(len(result2)):
+#     print(f'The probablity of a {result2[i][0]} class female over age 35 surviving is: {(result1[i][1]/result2[i][1]):.2}')
 
 conn.close
