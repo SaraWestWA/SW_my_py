@@ -55,13 +55,9 @@ WHERE sex = 'female' AND age > 35;
 result = cursor.execute(query3)
 total = cursor.fetchall()
 
-
 print(f'There were {total[0][0]} women over the age of 35 traveling aboard the Titanic.')
 for i in range(len(result1)):
     rate = round(100*(result1[i][1]/result2[i][1]),1)
     print(f'Of these {result1[i][1]} in {result2[i][0]} class survived, that is {rate}%.')
-
-# for i in range(len(result2)):
-#     print(f'The probablity of a {result2[i][0]} class female over age 35 surviving is: {(result1[i][1]/result2[i][1]):.2}')
 
 conn.close
