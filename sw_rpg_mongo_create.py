@@ -21,24 +21,37 @@ conn = sqlite3.connect('rpg_db.sqlite3')
 print(conn)
 cursor = conn.cursor()
 
-table_names = [
-    'armory_item',
-    'armory_weapon',
-    'charactercreator_character',
-    'charactercreator_character_inventory',
-    'charactercreator_cleric',
-    'charactercreator_fighter',
-    'charactercreator_mage',
-    'charactercreator_necromancer',
-    'charactercreator_thief'
-]
+table_name_query = """
+SELECT name
+FROM sqlite_master
+WHERE type='table'
+AND (name LIKE 'charactercreator_%' OR name LIKE 'armory_%')
+"""
+# result = cursor.execute(table_name_query).fetchall()
+
+# table_names = []
+# for i in range(len(result)):
+#     table_names.append(result[i][0])
+
+# # Amazing ETL Loop
+# for i in range(len(table_names)):
+#     query = 'SELECT * FROM {}'.format(table_names[i]) # extract data
+#     # transform data by reading into dataframes then converting to dictionaries
+#     result = pd.read_sql(query, con=conn).to_dict(orient='records')
+#     db[table_names[i]].insert_many(result) # load data
+
+name_result = cursor.execute(table_name_query).fetchall()
+
+# table_names = []
+# for i in range(len(name_result)):
+#     table_names.append(result[i][0])
 
 # Amazing ETL Loop
-for i in range(len(table_names)):
-    query = 'SELECT * FROM {}'.format(table_names[i]) # extract data
+for i in range(len(name_result)):
+    query = 'SELECT * FROM {}'.format(name_result[i][0]) # extract data
     # transform data by reading into dataframes then converting to dictionaries
     result = pd.read_sql(query, con=conn).to_dict(orient='records')
-    db[table_names[i]].insert_many(result) # load data
+    db[name_result[i][0]].insert_many(result) # load data
 
 conn.close
 
