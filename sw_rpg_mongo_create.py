@@ -21,13 +21,67 @@ conn = sqlite3.connect('rpg_db.sqlite3')
 print(conn)
 cursor = conn.cursor()
 
-# Extract Data
-df_armory_item = pd.read_sql(('SELECT * FROM armory_item'), con=conn)
-# Transform Data
-ai_result = df_armory_item.to_dict(orient='records')
-# Load Data
-armory_item = db.armory_item
-armory_item.insert_many(ai_result)
+table_names = [
+    'armory_item',
+    'armory_weapon',
+    'charactercreator_character',
+    'charactercreator_character_inventory',
+    'charactercreator_cleric',
+    'charactercreator_fighter',
+    'charactercreator_mage',
+    'charactercreator_necromancer',
+    'charactercreator_thief'
+]
+
+# Amazing ETL Loop
+for i in range(len(table_names)):
+    query = 'SELECT * FROM {}'.format(table_names[i]) # extract data
+    # transform data by reading into dataframes then converting to dictionaries
+    result = pd.read_sql(query, con=conn).to_dict(orient='records')
+    db[table_names[i]].insert_many(result) # load data
+
+conn.close
+
+"""
+# MULTIPLE LOOPS - What I wanted to turn in, but couldn't properly debug
+table_names = [
+    'armory_item',
+    'armory_weapon',
+    'charactercreator_character',
+    'charactercreator_character_inventory',
+    'charactercreator_cleric',
+    'charactercreator_fighter',
+    'charactercreator_mage',
+    'charactercreator_necromancer',
+    'charactercreator_thief'
+]
+
+# extract data
+df_list = []
+for t in table_names:
+    query = 'SELECT * FROM {}'.format(t)
+    df = pd.read_sql(query, con=conn)
+    df_list.append(df)
+
+# transform data
+new_df_list = []
+for d in range(len(df_list)):
+    result = df_list[d].to_dict(orient='records')
+    new_df_list.append(result)
+print(len(new_df_list))
+
+# load data
+db_creator = []
+for c in range(len(new_df_list)):
+    db[table_names[c]].insert_many(new_df_list[c])
+
+# ########
+
+INDIVIDUAL TABLE - What I turned in because it worked
+df_armory_item = pd.read_sql(('SELECT * FROM armory_item'), con=conn) # extract data
+ai_result = df_armory_item.to_dict(orient='records') # transform data
+armory_item = db.armory_item # create db documents
+armory_item.insert_many(ai_result) # load data
 
 #Repeat for each table to be collection
 df_armory_weapon = pd.read_sql(('SELECT * FROM armory_weapon'), con=conn)
@@ -69,5 +123,4 @@ df_charactercreator_thief = pd.read_sql(('SELECT * FROM charactercreator_thief')
 ct_result = df_charactercreator_thief.to_dict(orient='records')
 charactercreator_thief = db.charactercreator_thief
 charactercreator_thief.insert_many(ct_result)
-
-conn.close
+"""
